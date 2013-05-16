@@ -6,6 +6,27 @@ import optparse
 import sys
 
 
+# This is a command-line script to import DNS records for a single domain
+# into a hover account. Run it like so:
+# ./dynhover.py -u USERNAME -p PASSWORD DNS_FILE DOMAIN
+# or create a config file like this:
+#
+# [hover]
+# username=USERNAME
+# password=PASSWORD
+#
+# and run it like this:
+# ./dynhover.py -c PATH_TO_CONF DNS_FILE DOMAIN
+#
+# The DNS file should have one record per line, in the format:
+# {name} {type} {content}
+#
+# For example:
+#
+# www A 127.0.0.1
+# @ MX 10 127.0.0.1
+
+
 class HoverException(Exception):
     pass
 
