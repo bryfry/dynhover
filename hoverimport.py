@@ -29,49 +29,41 @@ class HoverAPI(object):
             return body
 
 
-def get_public_ip():
-    return requests.get("http://api.exip.org/?call=ip").content
-
-
-def update_dns(username, password, fqdn):
+def import_dns(username, password, domain, filename, flush=False):
     try:
         client = HoverAPI(username, password)
     except HoverException as e:
         raise HoverException("Authentication failed")
-    dns = client.call("get", "dns")
-    dns_id = None
-    for domain in dns["domains"]:
-        if fqdn == domain["domain_name"]:
-            fqdn = "@.{domain_name}".format(**domain)
-        for entry in domain["entries"]:
-            if entry["type"] != "A": continue
-            if "{0}.{1}".format(entry["name"], domain["domain_name"]) == fqdn:
-                dns_id = entry["id"]
-                break
-    if dns_id is None:
-        raise HoverException("No DNS record found for {0}".format(fqdn))
-
-    my_ip = get_public_ip()
-
-    response = client.call("put", "dns/{0}".format(dns_id), {"content": my_ip})
+    if flush:
+        records = client.call("get", "domains/{0}/dns".format(domain))["domains"][0]["entries"]
+        for record in records:
+            client.call("delete", "dns/{0}".format(record["id"]))
+            print "Deleted {name} {type} {content}".format(**record)
     
-    if "succeeded" not in response or response["succeeded"] is not True:
-        raise HoverException(response)
+    domain_id = client.call("get", "domains/{0}".format(domain))["domain"]["id"]
     
+    with open(filename, "r") as f:
+        for line in f:
+            parts = line.strip().split(" ", 2)
+            record = {"name": parts[0], "type": parts[1], "content": parts[2]}
+            client.call("post", "domains/{0}/dns".format(domain), record)
+            print "Created {name} {type} {content}".format(**record)
+
 
 def main():
-    usage = "usage: %prog (-c CONF|-u USERNAME -p PASSWORD) DOMAIN"
-    description = "Update a hover.com DNS record with the current IP of this machine."
+    usage = "usage: %prog (-c CONF|-u USERNAME -p PASSWORD) DOMAIN FILE"
+    description = "Import a file of DNS records for a single domain into a hover account."
     parser = optparse.OptionParser(usage=usage, description=description)
     parser.add_option("-c", "--conf", default=None, help="The conf file that contains your username and password")
     parser.add_option("-u", "--username", default=None, help="Your hover.com username")
     parser.add_option("-p", "--password", default=None, help="Your hover.com password")
+    parser.add_option("-f", "--flush", default=False, action="store_true", help="Flush all DNS records associated with the domain before importing")
     (options, args) = parser.parse_args()
     
-    if len(args) < 1:
-        parser.error("You must specify a domain")
+    if len(args) < 2:
+        parser.error("You must specify both a domain, and a file to import")
     
-    domain = args[0]
+    domain, filename = args
     
     def get_conf(filename):
         config = ConfigParser.ConfigParser()
@@ -87,13 +79,13 @@ def main():
     else:
         username, password = get_conf(options.conf)
 
-    update_dns(username, password, domain)
+    import_dns(username, password, domain, filename, options.flush)
 
 
 if __name__ == "__main__":
     try:
         main()
     except HoverException as e:
-        print "Unable to update DNS: {0}".format(e)
+        print "Failed while importing DNS: {0}".format(e)
         sys.exit(1)
     sys.exit(0)        
