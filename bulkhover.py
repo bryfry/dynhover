@@ -88,8 +88,8 @@ def export_dns(username, password, domain, filename):
     
 
 def main():
-    usage = "usage: %prog (-c CONF|-u USERNAME -p PASSWORD) DOMAIN FILE"
-    description = "Import a file of DNS records for a single domain into a hover account."
+    usage = "usage: %prog (-c CONF|-u USERNAME -p PASSWORD) (import|export) DOMAIN DNS_FILE"
+    description = "Import or export DNS records for a single domain in a hover account."
     parser = optparse.OptionParser(usage=usage, description=description)
     parser.add_option("-c", "--conf", default=None, help="The conf file that contains your username and password")
     parser.add_option("-u", "--username", default=None, help="Your hover.com username")
@@ -131,4 +131,4 @@ if __name__ == "__main__":
     except HoverException as e:
         print "Failed while importing DNS: {0}".format(e)
         sys.exit(1)
-    sys.exit(0)        
+    sys.exit(0)
