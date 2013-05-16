@@ -24,7 +24,7 @@ import sys
 # For example:
 #
 # www A 127.0.0.1
-# @ MX 10 127.0.0.1
+# @ MX 10 example.com
 
 
 class HoverException(Exception):
