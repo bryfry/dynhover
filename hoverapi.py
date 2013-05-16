@@ -16,6 +16,7 @@ class HoverAPI(object):
             return r.json()
 
 
+# connect to the API using your account
 client = HoverAPI("myusername", "mypassword")
 
 # get details of a domains without DNS records
@@ -25,7 +26,7 @@ client.call("get", "domains")
 client.call("get", "dns")
 
 
-# notice the "id" field of domains in the above calls - that's needed
+# notice the "id" field of domains in response to the above calls - that's needed
 # to address the domains individually, like so:
 
 # get details of a specific domain without DNS records
@@ -34,7 +35,7 @@ client.call("get", "domains/dom123456")
 # get DNS records of a specific domain:
 client.call("get", "domains/dom123456/dns")
 
-# create a new DNS record on a specific domain:
+# create a new A record:
 record = {"name": "mysubdomain", "type": "A", "content": "127.0.0.1"}
 client.call("post", "domains/dom123456/dns", record)
 
@@ -49,8 +50,8 @@ record = {"name": "mysubdomain", "type": "MX", "content": "10 mail"}
 client.call("post", "domains/dom123456/dns", record)
 
 
-# notice the "id" field of DNS records in the above calls - that's needed
-# to address the DNS records individually, like so:
+# notice the "id" field of DNS records in the above calls - that's
+#  needed to address the DNS records individually, like so:
 
 # update an existing DNS record
 client.call("put", "dns/dns1234567", {"content": "127.0.0.1"})

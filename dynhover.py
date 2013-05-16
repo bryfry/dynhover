@@ -5,6 +5,18 @@ import requests
 import optparse
 import sys
 
+# This is a command-line script to update a hover.com DNS record with your
+# current public-facing IP address. (think dyndns) Run it like so:
+# ./dynhover.py -u USERNAME -p PASSWORD -d DOMAIN
+# or create a config file like this:
+# 
+# [dynhover]
+# username=USERNAME
+# password=PASSWORD
+# domain=DOMAIN
+#
+# and run it like this:
+# ./dynhover.py -c PATH_TO_CONF
 
 class HoverException(Exception):
     pass
