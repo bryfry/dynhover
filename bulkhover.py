@@ -37,7 +37,7 @@ class HoverException(Exception):
 class HoverAPI(object):
     def __init__(self, username, password):
         params = {"username": username, "password": password}
-        r = requests.post("https://www.hover.com/signin", params=params)
+        r = requests.post("https://www.hover.com/api/login", params=params)
         if not r.ok or "hoverauth" not in r.cookies:
             raise HoverException(r)
         self.cookies = {"hoverauth": r.cookies["hoverauth"]}
